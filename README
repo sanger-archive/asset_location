@@ -1,0 +1,40 @@
+This is a Sinatra application which will retrieve the current location of an asset from ETS.
+To run it:
+export RAILS_ENV=development && ruby asset_location.rb -p 3013
+
+To view it:
+http://localhost:3013
+
+GET http://localhost:3013/locations/asset.xml?barcode=165641&barcode_prefix=DN
+
+<?xml version="1.0" encoding="UTF-8"?>
+<location>
+  <building_area>DNA Lab</building_area>
+  <storage_area>S2.R3.T2</storage_area>
+  <storage_device>Freezer 6</storage_device>
+  <building>Sanger Institute</building>
+</location>
+
+
+
+GET http://localhost:3013/locations/asset.json?barcode=165641&barcode_prefix=DN
+Returned JSON:
+{
+  "location":
+  {
+    "building_area": "DNA Lab",
+    "storage_area": "S2.R3.T2",
+    "storage_device": "Freezer 6",
+    "building": "Sanger Institute"
+  }
+}
+
+To use from within Rails:
+
+class AssetLocation < ActiveResource::Base
+  self.site = 'http://localhost:3013'
+  self.format = :json
+  self.element_name = 'location'
+end
+
+AssetLocation.get(:asset, :barcode => '165641', :barcode_prefix => 'DN')

@@ -1,0 +1,15 @@
+development_cas:
+  adapter: oracle_enhanced
+  database: casp.world
+  username: read_only
+  password: read_only
+  host: localhost
+  port: 1524
+
+test_cas:
+  adapter: mysql
+  database: cas_test
+  username: root
+  password:
+  socket: /tmp/mysql.sock
+  
