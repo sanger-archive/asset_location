@@ -20,8 +20,7 @@ class StoredEntity < ActiveRecord::Base
 
   set_table_name "STORED_ENTITY"
 
-  def self.storage_location(asset_barcode,barcode_prefix="DN")
-    storage_location = self.connection.select_one <<-EOS
+  STORAGE_LOCATION_QUERY = <<-EOS
     select
     sa.name as STORAGE_AREA,
     sd.name as STORAGE_DEVICE,
@@ -36,8 +35,8 @@ class StoredEntity < ActiveRecord::Base
     storage_device sd,
     building_area ba,
     building b
-    where se.prefix = '#{barcode_prefix}'
-    and se.id_storedobject = #{asset_barcode.to_i}
+    where se.prefix = :barcode_prefix
+    and se.id_storedobject = :asset_barcode
     and se.id_storage = em.id_storage
     and em.is_current = 1
     and em.id_sarealocation = sal.id_sarealocation
@@ -48,7 +47,13 @@ class StoredEntity < ActiveRecord::Base
     and dl.id_storage_device = sd.id_storage_device
     and dl.id_buildingarea = ba.id_buildingarea
     and ba.id_building = b.id_building
-    EOS
+  EOS
+
+  def self.storage_location(asset_barcode,barcode_prefix="DN")
+    self.connection.select_one(sanitize_sql([
+      STORAGE_LOCATION_QUERY,
+      { :barcode_prefix => barcode_prefix, :asset_barcode => asset_barcode.to_i }
+    ]))
   end
 end
 
